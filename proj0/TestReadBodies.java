@@ -20,6 +20,8 @@ public class TestReadBodies {
          * a certain method static! */
         Body[] actualOutput = NBody.readBodies(planetsTxtPath);
 
+        // System.out.println(actualOutput[0].xxPos);
+
         /* Check the simple things: */
         if (actualOutput == null) {
             return "FAIL: readBodies(); null output";
@@ -36,6 +38,7 @@ public class TestReadBodies {
         boolean foundVenus = false;
         boolean randomChecksOkay = true;
         for (Body p : actualOutput) {
+            // System.out.println(p.xxPos);
             if ("earth.gif".equals(p.imgFileName)) {
                 foundEarth = true;
                 if (!doubleEquals(p.xxPos, 1.4960e+11, 0.01)) {
