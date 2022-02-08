@@ -1,14 +1,13 @@
 package creatures;
 
-import huglife.Creature;
-import huglife.Direction;
-import huglife.Action;
-import huglife.Occupant;
+import huglife.*;
 
 import java.awt.Color;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * An implementation of a motile pacifist photosynthesizer.
@@ -57,8 +56,22 @@ public class Plip extends Creature {
      * that you get this exactly correct.
      */
     public Color color() {
-        g = 63;
+        r = 99;
+        g = (int) (96*energy+63);
+        b = 76;
         return color(r, g, b);
+    }
+
+    /**
+     * sets energy to 2.0 if energy exists 2.0.
+     */
+    public void checkEnergy() {
+        if (energy > 2.0) {
+            energy = 2.0;
+        }
+        else if (energy < 0.0) {
+            energy = 0.0;
+        }
     }
 
     /**
@@ -74,7 +87,8 @@ public class Plip extends Creature {
      * private static final variable. This is not required for this lab.
      */
     public void move() {
-        // TODO
+        energy -= 0.15;
+        checkEnergy();
     }
 
 
@@ -82,7 +96,8 @@ public class Plip extends Creature {
      * Plips gain 0.2 energy when staying due to photosynthesis.
      */
     public void stay() {
-        // TODO
+        energy += 0.2;
+        checkEnergy();
     }
 
     /**
@@ -91,7 +106,9 @@ public class Plip extends Creature {
      * Plip.
      */
     public Plip replicate() {
-        return this;
+        Plip newPlip = new Plip(energy/2);
+        newPlip.color(r, g, b);
+        return newPlip;
     }
 
     /**
@@ -109,20 +126,52 @@ public class Plip extends Creature {
      */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
         // Rule 1
-        Deque<Direction> emptyNeighbors = new ArrayDeque<>();
+        ArrayList<Direction> emptyNeighbors = new ArrayList<>();
         boolean anyClorus = false;
         // TODO
         // (Google: Enhanced for-loop over keys of NEIGHBORS?)
         // for () {...}
+        int emptyCount = 0;
+        int impassibleCount = 0;
 
-        if (false) { // FIXME
-            // TODO
+        for (Direction dir : neighbors.keySet()) {
+            if (neighbors.get(dir).name().equals("empty")) {
+                emptyCount += 1;
+                emptyNeighbors.add(dir);
+            } else if (neighbors.get(dir).name().equals("impassible")) {
+                impassibleCount += 1;
+            } else if (neighbors.get(dir).name().equals("clorus")) {
+                anyClorus = true;
+            }
+        }
+
+        if (emptyCount == 0) {
+            return new Action(Action.ActionType.STAY);
+        }
+
+        if (impassibleCount == 4) {
+            return new Action(Action.ActionType.STAY);
         }
 
         // Rule 2
         // HINT: randomEntry(emptyNeighbors)
+        if (energy >= 1.0) {
+            Random generator = new Random();
+            int randomIndex = generator.nextInt(emptyNeighbors.size());
+            return new Action(Action.ActionType.REPLICATE, emptyNeighbors.get(randomIndex));
+        }
 
         // Rule 3
+        if (anyClorus) {
+            Random generator = new Random();
+            int randomIndex = generator.nextInt(1);
+            if (randomIndex >0) {
+                randomIndex = generator.nextInt(emptyNeighbors.size());
+                return new Action(Action.ActionType.REPLICATE, emptyNeighbors.get(randomIndex));
+            } else {
+                return new Action(Action.ActionType.STAY);
+            }
+        }
 
         // Rule 4
         return new Action(Action.ActionType.STAY);
